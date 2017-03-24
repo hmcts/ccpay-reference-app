@@ -65,6 +65,10 @@ public class AppealTestDsl {
             return this;
         }
 
+        public AppealWhenDsl retrieveAppeal(String userId, Integer appealId) {
+            return retrieveAppeal(userId, appealId.toString());
+        }
+
         @SneakyThrows
         public AppealWhenDsl retrieveAppeal(String userId, String appealId) {
             resultActions = mvc.perform(MockMvcRequestBuilders.get("/users/{userId}/appeals/{appealId}", userId, appealId)

@@ -1,10 +1,10 @@
 {
   "request": {
     "method": "POST",
-    "url": "/users/123/payments",
+    "url": "/users/2/payments",
     "headers": {
       "Authorization": {
-        "equalTo": "Bearer user-123"
+        "equalTo": "Bearer user-2"
       },
       "ServiceAuthorization": {
         "equalTo": "Bearer component-test-service-token"
@@ -22,7 +22,7 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "id": "payment-id-1",
+      "id": "1",
       "amount": 100,
       "state": {
         "status": "created",
@@ -33,12 +33,8 @@
       "date_created": 1490347739958,
       "_links": {
         "next_url": {
-          "href": "https://www.payments.service.gov.uk/secure/next-url",
+          "href": "https://www.payments.service.gov.uk/secure/just-created-url",
           "method": "GET"
-        },
-        "cancel": {
-          "href": "http://localhost:8080/users/1/payments/2/cancel",
-          "method": "POST"
         }
       }
     }

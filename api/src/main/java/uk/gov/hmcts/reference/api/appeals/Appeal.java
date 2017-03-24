@@ -34,11 +34,14 @@ public class Appeal {
 
         if (payment == null) {
             payment = paymentFactory.apply(getType());
-        } else if (payment.isPaid()) {
-            status = PAID;
-            return Optional.empty();
-        } else if (!payment.isActive()) {
-            payment = paymentFactory.apply(getType());
+        } else {
+            payment.refresh();
+            if (payment.isPaid()) {
+                status = PAID;
+                return Optional.empty();
+            } else if (!payment.isActive()) {
+                payment = paymentFactory.apply(getType());
+            }
         }
 
         return Optional.of(payment.getUrl());
@@ -63,6 +66,8 @@ public class Appeal {
     }
 
     public interface Payment {
+        void refresh();
+
         boolean isActive();
 
         boolean isPaid();

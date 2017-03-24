@@ -12,13 +12,13 @@ public class CreateAppealComponentTest extends ComponentTestBase {
 
     @Test
     public void createAppealShouldReturn200WithBody() throws Exception {
-        scenario.given().userId("123")
-                .when().createAppeal("123", SOME_APPEAL, "Description")
+        scenario.given().userId("1")
+                .when().createAppeal("1", SOME_APPEAL, "Description")
                 .then().created((actual) -> {
                     assertThat(actual.getType()).isEqualTo(SOME_APPEAL);
                     assertThat(actual.getStatus()).isEqualTo(AWAITING_PAYMENT);
                     assertThat(actual.getDescription()).isEqualTo("Description");
-                    assertThat(actual.getPaymentUrl()).isEqualTo("https://www.payments.service.gov.uk/secure/next-url");
+                    assertThat(actual.getPaymentUrl()).isEqualTo("https://www.payments.service.gov.uk/secure/just-created-url");
                 }
         );
     }
@@ -27,14 +27,14 @@ public class CreateAppealComponentTest extends ComponentTestBase {
     public void createdAppealShouldBeRetrievable() throws Exception {
         AtomicReference<AppealDto> createdHolder = new AtomicReference<>();
 
-        scenario.given().userId("123")
-                .when().createAppeal("123", SOME_APPEAL, "Description", createdHolder)
-                .and().retrieveAppeal("123", createdHolder.get().getId().toString())
+        scenario.given().userId("1")
+                .when().createAppeal("1", SOME_APPEAL, "Description", createdHolder)
+                .and().retrieveAppeal("1", createdHolder.get().getId())
                 .then().retrieved((actual) -> {
                     assertThat(actual.getType()).isEqualTo(SOME_APPEAL);
                     assertThat(actual.getStatus()).isEqualTo(AWAITING_PAYMENT);
                     assertThat(actual.getDescription()).isEqualTo("Description");
-                    assertThat(actual.getPaymentUrl()).isEqualTo("https://www.payments.service.gov.uk/secure/next-url");
+                    assertThat(actual.getPaymentUrl()).isEqualTo("https://www.payments.service.gov.uk/secure/retrieved-url");
                 }
         );
     }

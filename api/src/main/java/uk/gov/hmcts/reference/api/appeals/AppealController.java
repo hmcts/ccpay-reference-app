@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reference.api.appeals;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -67,22 +68,27 @@ public class AppealController {
     private Function<AppealType, Payment> paymentFactory() {
         return (appealType) -> {
             Integer amount = feesRegisterClient.retrieve(appealType.getFeeCode());
-            PaymentDto paymentDto = paymentClient.create(amount, "https://localhost:8080/");
+            AtomicReference<PaymentDto> paymentDto = new AtomicReference<>(paymentClient.create(amount, "https://localhost:8080/"));
 
             return new Payment() {
                 @Override
+                public void refresh() {
+                    paymentDto.set(paymentClient.retrieve(paymentDto.get().getId()));
+                }
+
+                @Override
                 public boolean isActive() {
-                    return !paymentClient.retrieve(paymentDto.getId()).getState().getFinished();
+                    return !paymentDto.get().getState().getFinished();
                 }
 
                 @Override
                 public boolean isPaid() {
-                    return "success".equals(paymentClient.retrieve(paymentDto.getId()).getState().getStatus());
+                    return "success".equals(paymentDto.get().getState().getStatus());
                 }
 
                 @Override
                 public String getUrl() {
-                    return paymentDto.getLinks().getNextUrl().getHref();
+                    return paymentDto.get().getLinks().getNextUrl().getHref();
                 }
             };
         };

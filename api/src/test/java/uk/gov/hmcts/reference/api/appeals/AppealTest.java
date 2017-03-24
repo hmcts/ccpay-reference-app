@@ -53,5 +53,9 @@ public class AppealTest {
         private final boolean active;
         private final boolean paid;
         private final String url;
+
+        @Override
+        public void refresh() {
+        }
     }
 }
