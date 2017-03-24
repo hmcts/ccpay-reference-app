@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reference.api.componenttests.dsl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpHeaders;
@@ -46,6 +47,14 @@ public class AppealTestDsl {
     }
 
     public class AppealWhenDsl {
+
+        @SneakyThrows
+        public AppealWhenDsl createAppeal(String userId, AppealType appealType, String description, AtomicReference<AppealDto> createdHolder) {
+            createAppeal(userId, appealType, description);
+            createdHolder.set(bodyAs(AppealDto.class));
+            return this;
+        }
+
         @SneakyThrows
         public AppealWhenDsl createAppeal(String userId, AppealType appealType, String description) {
             resultActions = mvc.perform(MockMvcRequestBuilders
@@ -76,22 +85,29 @@ public class AppealTestDsl {
 
     public class AppealThenDsl {
         @SneakyThrows
+        public AppealThenDsl forbidden() {
+            resultActions.andExpect(status().isForbidden());
+            return this;
+        }
+
+        @SneakyThrows
         public AppealThenDsl created(Consumer<AppealDto> consumer) {
             resultActions.andExpect(status().isOk());
-            AppealDto actual = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), AppealDto.class);
-            consumer.accept(actual);
+            consumer.accept(bodyAs(AppealDto.class));
             return this;
         }
 
         @SneakyThrows
         public AppealThenDsl retrieved(Consumer<AppealDto> consumer) {
             resultActions.andExpect(status().isOk());
-            AppealDto actual = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), AppealDto.class);
-            consumer.accept(actual);
+            consumer.accept(bodyAs(AppealDto.class));
             return this;
         }
 
     }
 
+    private AppealDto bodyAs(Class<AppealDto> valueType) throws java.io.IOException {
+        return objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), valueType);
+    }
 
 }
