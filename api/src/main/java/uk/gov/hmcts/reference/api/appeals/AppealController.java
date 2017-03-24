@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reference.api.appeals;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -13,8 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.reference.api.appeals.Appeal.AppealType;
 import uk.gov.hmcts.reference.api.appeals.Appeal.Payment;
+import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealDto;
+import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealListItemDto;
 import uk.gov.hmcts.reference.api.fees.FeesRegisterClient;
 import uk.gov.hmcts.reference.api.payments.PaymentClient;
+
+import static java.util.stream.Collectors.toList;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -45,6 +50,13 @@ public class AppealController {
                 .description(description)
                 .build()
         ));
+    }
+
+    @RequestMapping(value = "/users/{userId}/appeals", method = GET)
+    public List<AppealListItemDto> retrieve(@PathVariable("userId") String userId) {
+        return appealRepository.retrieveAll().stream()
+                .map((appeal) -> new AppealListItemDto(appeal.getId(), appeal.getType(), appeal.getDescription()))
+                .collect(toList());
     }
 
     @RequestMapping(value = "/users/{userId}/appeals/{appealId}", method = GET)

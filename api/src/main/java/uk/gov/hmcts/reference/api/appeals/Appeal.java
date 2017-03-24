@@ -48,7 +48,7 @@ public class Appeal {
     }
 
     public enum AppealType {
-        SOME_APPEAL("X001"), SOME_OTHER_APPEAL("X002");
+        SOME_TYPE("X001"), SOME_OTHER_TYPE("X002");
 
         private final String feeCode;
 

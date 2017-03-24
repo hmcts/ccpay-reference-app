@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reference.api.appeals;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.stereotype.Component;
@@ -23,5 +24,9 @@ public class AppealRepository {
         }
 
         return appeal;
+    }
+
+    public Collection<Appeal> retrieveAll() {
+        return store.values();
     }
 }

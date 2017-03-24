@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reference.api.componenttests.dsl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
@@ -10,7 +12,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import uk.gov.hmcts.auth.checker.UserRequestAuthorizer;
 import uk.gov.hmcts.reference.api.appeals.Appeal.AppealType;
-import uk.gov.hmcts.reference.api.appeals.AppealDto;
+import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealDto;
+import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealListItemDto;
 import uk.gov.hmcts.reference.api.componenttests.backdoors.UserResolverBackdoor;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -78,6 +81,15 @@ public class AppealTestDsl {
             return this;
         }
 
+        @SneakyThrows
+        public AppealWhenDsl retrieveAppealList(String userId) {
+            resultActions = mvc.perform(MockMvcRequestBuilders.get("/users/{userId}/appeals", userId)
+                    .contentType(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .headers(httpHeaders));
+            return this;
+        }
+
         public AppealWhenDsl and() {
             return this;
         }
@@ -108,9 +120,20 @@ public class AppealTestDsl {
             return this;
         }
 
+        @SneakyThrows
+        public AppealThenDsl retrievedList(Consumer<List<AppealListItemDto>> consumer) {
+            resultActions.andExpect(status().isOk());
+            consumer.accept(bodyAsList(AppealListItemDto.class));
+            return this;
+        }
     }
 
-    private AppealDto bodyAs(Class<AppealDto> valueType) throws java.io.IOException {
+    private <T> List<T> bodyAsList(Class<T> valueType) throws java.io.IOException {
+        CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, valueType);
+        return objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), collectionType);
+    }
+
+    private <T> T bodyAs(Class<T> valueType) throws java.io.IOException {
         return objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), valueType);
     }
 
