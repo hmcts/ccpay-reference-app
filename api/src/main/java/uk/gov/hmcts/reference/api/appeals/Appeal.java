@@ -27,20 +27,20 @@ public class Appeal {
     @Setter(value = PRIVATE)
     private Payment payment;
 
-    public Optional<String> getPaymentUrl(Function<AppealType, Payment> paymentFactory) {
+    public Optional<String> getPaymentUrl(Function<Appeal, Payment> paymentFactory) {
         if (getStatus() != AWAITING_PAYMENT) {
             return Optional.empty();
         }
 
         if (payment == null) {
-            payment = paymentFactory.apply(getType());
+            payment = paymentFactory.apply(this);
         } else {
             payment.refresh();
             if (payment.isPaid()) {
                 status = PAID;
                 return Optional.empty();
             } else if (!payment.isActive()) {
-                payment = paymentFactory.apply(getType());
+                payment = paymentFactory.apply(this);
             }
         }
 

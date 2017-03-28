@@ -2,8 +2,6 @@ package uk.gov.hmcts.reference.api.appeals;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.reference.api.appeals.Appeal.AppealType;
-import uk.gov.hmcts.reference.api.appeals.Appeal.Payment;
 import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealDto;
 import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealListItemDto;
-import uk.gov.hmcts.reference.api.fees.FeesRegisterClient;
-import uk.gov.hmcts.reference.api.payments.PaymentClient;
 
 import static java.util.stream.Collectors.toList;
 
@@ -29,14 +23,12 @@ import static uk.gov.hmcts.reference.api.appeals.Appeal.AppealStatus.AWAITING_PA
 @RestController
 public class AppealController {
     private final AppealRepository appealRepository;
-    private final PaymentClient paymentClient;
-    private final FeesRegisterClient feesRegisterClient;
+    private final PaymentFactory paymentFactory;
 
     @Autowired
-    public AppealController(AppealRepository appealRepository, PaymentClient paymentClient, FeesRegisterClient feesRegisterClient) {
+    public AppealController(AppealRepository appealRepository, PaymentFactory paymentFactory) {
         this.appealRepository = appealRepository;
-        this.paymentClient = paymentClient;
-        this.feesRegisterClient = feesRegisterClient;
+        this.paymentFactory = paymentFactory;
     }
 
     @RequestMapping(value = "/users/{userId}/appeals", method = POST)
@@ -66,7 +58,7 @@ public class AppealController {
     }
 
     private AppealDto toDto(Appeal appeal) {
-        Optional<String> paymentUrl = appeal.getPaymentUrl(paymentFactory());
+        Optional<String> paymentUrl = appeal.getPaymentUrl(paymentFactory);
 
         return AppealDto.anAppealDtoWith()
                 .id(appeal.getId())
@@ -77,32 +69,4 @@ public class AppealController {
                 .build();
     }
 
-    private Function<AppealType, Payment> paymentFactory() {
-        return (appealType) -> {
-            Integer amount = feesRegisterClient.retrieve(appealType.getFeeCode());
-            AtomicReference<PaymentDto> paymentDto = new AtomicReference<>(paymentClient.create(amount, "https://localhost:8080/"));
-
-            return new Payment() {
-                @Override
-                public void refresh() {
-                    paymentDto.set(paymentClient.retrieve(paymentDto.get().getId()));
-                }
-
-                @Override
-                public boolean isActive() {
-                    return !paymentDto.get().getState().getFinished();
-                }
-
-                @Override
-                public boolean isPaid() {
-                    return "success".equals(paymentDto.get().getState().getStatus());
-                }
-
-                @Override
-                public String getUrl() {
-                    return paymentDto.get().getLinks().getNextUrl().getHref();
-                }
-            };
-        };
-    }
 }
