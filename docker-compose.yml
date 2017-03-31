@@ -1,6 +1,14 @@
 version: '2'
 
 services:
+  test-data-loader:
+    build:
+      context: docker/test-data-loader
+    links:
+     - idam-database
+    depends_on:
+     - idam-database
+
   reference-api:
     build:
       context: .
@@ -77,4 +85,3 @@ services:
       - auth.provider.service.testing-support.enabled=true
     ports:
       - 8085:8080
-

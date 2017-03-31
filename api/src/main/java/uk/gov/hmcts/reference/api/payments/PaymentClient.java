@@ -2,6 +2,7 @@ package uk.gov.hmcts.reference.api.payments;
 
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +25,9 @@ public class PaymentClient {
     private final String baseUrl;
 
     @Autowired
-    public PaymentClient(RestTemplate restTemplate, @Value("${payment.client.baseUrl}") String baseUrl, ServiceTokenGenerator serviceTokenGenerator) {
+    public PaymentClient(RestTemplate restTemplate,
+                         @Value("${payment.client.baseUrl}") String baseUrl,
+                         @Qualifier("cachedServiceTokenGenerator") ServiceTokenGenerator serviceTokenGenerator) {
         this.serviceTokenGenerator = serviceTokenGenerator;
         this.restTemplate = restTemplate;
         this.baseUrl = baseUrl;
