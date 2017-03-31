@@ -2,21 +2,21 @@ package uk.gov.hmcts.reference.api.componenttests;
 
 import org.junit.Test;
 
-import static uk.gov.hmcts.reference.api.appeals.Appeal.AppealType.SOME_TYPE;
+import static uk.gov.hmcts.reference.api.appeals.Appeal.AppealType.HAPPY_PATH;
 
 public class SecurityComponentTest extends ComponentTestBase {
 
     @Test
     public void unauthenticatedUserShouldNotBeAllowed() throws Exception {
         scenario.given()
-                .when().createAppeal("1", SOME_TYPE, "Description")
+                .when().createAppeal("1", HAPPY_PATH, "Description")
                 .then().forbidden();
     }
 
     @Test
     public void userShouldNotBeAbleToCreateAppealForAnotherUser() throws Exception {
         scenario.given().userId("1")
-                .when().createAppeal("2", SOME_TYPE, "Description")
+                .when().createAppeal("2", HAPPY_PATH, "Description")
                 .then().forbidden();
     }
 

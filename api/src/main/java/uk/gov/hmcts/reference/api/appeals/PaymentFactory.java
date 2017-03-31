@@ -9,6 +9,8 @@ import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.reference.api.fees.FeesRegisterClient;
 import uk.gov.hmcts.reference.api.payments.PaymentClient;
 
+import static uk.gov.hmcts.reference.api.appeals.Appeal.AppealType.WITH_UNCAUGHT_PAYMENT_REDIRECT;
+
 @Component
 public class PaymentFactory implements Function<Appeal, Appeal.Payment> {
     private final FeesRegisterClient feesRegisterClient;
@@ -27,7 +29,7 @@ public class PaymentFactory implements Function<Appeal, Appeal.Payment> {
     @Override
     public Appeal.Payment apply(Appeal appeal) {
         Integer amount = feesRegisterClient.retrieve(appeal.getType().getFeeCode());
-        String returnUrl = String.format(returnUrlTemplate, appeal.getId());
+        String returnUrl = String.format(returnUrlTemplate, appeal.getType() == WITH_UNCAUGHT_PAYMENT_REDIRECT ? "" : appeal.getId());
         AtomicReference<PaymentDto> cachedPaymentHolder = new AtomicReference<>(paymentClient.create(amount, returnUrl));
 
         return new Appeal.Payment() {

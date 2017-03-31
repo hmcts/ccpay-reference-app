@@ -47,7 +47,7 @@ public class AppealController {
     @RequestMapping(value = "/users/{userId}/appeals", method = GET)
     public List<AppealListItemDto> retrieve(@PathVariable("userId") String userId) {
         return appealRepository.retrieveAll().stream()
-                .map((appeal) -> new AppealListItemDto(appeal.getId(), appeal.getType(), appeal.getDescription()))
+                .map((appeal) -> new AppealListItemDto(appeal.getId(), appeal.getType(), appeal.getStatus(), appeal.getDescription()))
                 .collect(toList());
     }
 

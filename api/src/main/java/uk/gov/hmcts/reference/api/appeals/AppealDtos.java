@@ -29,6 +29,7 @@ public class AppealDtos {
     public static class AppealListItemDto {
         private Integer id;
         private AppealType type;
+        private AppealStatus status;
         private String description;
     }
 }

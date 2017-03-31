@@ -48,7 +48,7 @@ public class Appeal {
     }
 
     public enum AppealType {
-        SOME_TYPE("X001"), SOME_OTHER_TYPE("X002");
+        HAPPY_PATH("X001"), WITH_UNCAUGHT_PAYMENT_REDIRECT("X002");
 
         private final String feeCode;
 

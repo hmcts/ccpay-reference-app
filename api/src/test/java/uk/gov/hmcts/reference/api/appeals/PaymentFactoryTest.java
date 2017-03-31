@@ -10,7 +10,7 @@ import uk.gov.hmcts.reference.api.payments.PaymentClient;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.hmcts.payment.api.contract.PaymentDto.paymentDtoWith;
-import static uk.gov.hmcts.reference.api.appeals.Appeal.AppealType.SOME_TYPE;
+import static uk.gov.hmcts.reference.api.appeals.Appeal.AppealType.HAPPY_PATH;
 import static uk.gov.hmcts.reference.api.appeals.Appeal.anAppealWith;
 
 public class PaymentFactoryTest {
@@ -27,8 +27,8 @@ public class PaymentFactoryTest {
 
     @Test
     public void amountShouldBeBasedOnFeesRegisterAndReturnUrlOnTemplate() {
-        when(feesRegisterClient.retrieve(SOME_TYPE.getFeeCode())).thenReturn(999);
-        factory.apply(anAppealWith().id(123).type(SOME_TYPE).build());
+        when(feesRegisterClient.retrieve(HAPPY_PATH.getFeeCode())).thenReturn(999);
+        factory.apply(anAppealWith().id(123).type(HAPPY_PATH).build());
         verify(paymentClient).create(999, "return-to-123-url");
     }
 
@@ -36,7 +36,7 @@ public class PaymentFactoryTest {
     public void onlyRefreshShouldTriggerRetrieve() {
         when(paymentClient.create(any(), any())).thenReturn(VALID_PAYMENT_DTO);
         when(paymentClient.retrieve(VALID_PAYMENT_DTO.getId())).thenReturn(VALID_PAYMENT_DTO);
-        Payment payment = factory.apply(anAppealWith().id(123).type(SOME_TYPE).build());
+        Payment payment = factory.apply(anAppealWith().id(123).type(HAPPY_PATH).build());
 
         verify(paymentClient, times(0)).retrieve(VALID_PAYMENT_DTO.getId());
         payment.refresh();
