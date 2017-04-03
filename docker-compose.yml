@@ -5,8 +5,10 @@ services:
     build:
       context: docker/test-data-loader
     links:
+     - idam-api
      - idam-database
     depends_on:
+     - idam-api
      - idam-database
 
   reference-api:
