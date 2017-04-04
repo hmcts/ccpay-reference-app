@@ -10,7 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import uk.gov.hmcts.auth.checker.UserRequestAuthorizer;
+import uk.gov.hmcts.auth.checker.user.UserRequestAuthorizer;
 import uk.gov.hmcts.reference.api.appeals.Appeal.AppealType;
 import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealDto;
 import uk.gov.hmcts.reference.api.appeals.AppealDtos.AppealListItemDto;
