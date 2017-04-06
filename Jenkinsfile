@@ -22,6 +22,11 @@ node {
             rtMaven.opts = mavenOpts(env)
             rtMaven.deployer releaseRepo:'libs-release', snapshotRepo:'libs-snapshot', server: server
             rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
+            archiveArtifacts 'api/target/*.jar'
+        }
+
+        stage('Build (Docker)') {
+            dockerImage imageName: 'common-components/reference-api'
         }
     } catch (err) {
          slackSend(
