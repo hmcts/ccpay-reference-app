@@ -39,7 +39,6 @@ public class PaymentClient {
                         .reference(UUID.randomUUID().toString())
                         .description("Payment for appeal")
                         .amount(amount)
-                        .email("reform-payments-test-user@binkmail.com")
                         .returnUrl(returnUrl)
                         .build(),
 
