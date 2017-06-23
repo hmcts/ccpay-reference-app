@@ -14,6 +14,7 @@ lock(resource: "reference-app-${env.BRANCH_NAME}", inversePrecedence: true) {
     node {
         try {
             stage('Checkout') {
+                deleteDir()
                 checkout scm
             }
 
