@@ -1,36 +1,58 @@
 #!groovy
+@Library("Reform")
+import uk.gov.hmcts.Packager
 
-@Library('Reform') _
+def packager = new Packager(this, 'cc')
+
+def server = Artifactory.server 'artifactory.reform'
+def buildInfo = Artifactory.newBuildInfo()
 
 properties(
     [[$class: 'GithubProjectProperty', displayName: 'Reference App', projectUrlStr: 'https://git.reform.hmcts.net/common-components/reference-app'],
-    pipelineTriggers([[$class: 'GitHubPushTrigger']])]
+     pipelineTriggers([[$class: 'GitHubPushTrigger']])]
 )
 
-stageWithNotification('Checkout') {
-    checkout scm
-}
-
-stageWithNotification('Build (JAR)') {
-    def rtMaven = Artifactory.newMavenBuild()
-    rtMaven.tool = 'apache-maven-3.3.9'
-    rtMaven.run pom: 'pom.xml', goals: 'clean install'
-    archiveArtifacts 'api/target/*.jar'
-}
-
-stageWithNotification('Build (Docker)') {
-    dockerImage imageName: 'common-components/reference-api'
-}
-
-private stageWithNotification(String name, Closure body) {
-    stage(name) {
-        node {
-            try {
-                body()
-            } catch (err) {
-                notifyBuildFailure channel: '#cc_tech'
-                throw err
+milestone()
+lock(resource: "reference-app-${env.BRANCH_NAME}", inversePrecedence: true) {
+    node {
+        try {
+            stage('Checkout') {
+                checkout scm
             }
+
+            stage('Build (JAR)') {
+                def rtMaven = Artifactory.newMavenBuild()
+                rtMaven.tool = 'apache-maven-3.3.9'
+                rtMaven.run pom: 'pom.xml', goals: 'clean install'
+            }
+
+            ifMaster {
+                def rpmVersion
+
+                stage('Publish JAR') {
+                    server.publishBuildInfo buildInfo
+                }
+
+                stage("Publish RPM") {
+                    rpmVersion = packager.javaRPM('master', 'reference-api', '$(ls api/target/reference-api-*.jar)', 'springboot', 'api/src/main/resources/application.properties')
+                    packager.publishJavaRPM('reference-api')
+                }
+
+                stage("Trigger acceptance tests") {
+//                    build job: '/common-components/reference-web-acceptance-tests/master', parameters: [[$class: 'StringParameterValue', name: 'rpmVersion', value: rpmVersion]]
+                }
+            }
+
+            milestone()
+        } catch (err) {
+            notifyBuildFailure channel: '#cc_tech'
+            throw err
         }
+    }
+}
+
+private ifMaster(Closure body) {
+    if ("master" == "${env.BRANCH_NAME}") {
+        body()
     }
 }
