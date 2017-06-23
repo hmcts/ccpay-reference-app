@@ -33,7 +33,10 @@ lock(resource: "reference-app-${env.BRANCH_NAME}", inversePrecedence: true) {
                 }
 
                 stage("Trigger acceptance tests") {
-//                    build job: '/common-components/reference-web-acceptance-tests/master', parameters: [[$class: 'StringParameterValue', name: 'rpmVersion', value: rpmVersion]]
+                    build job: '/common-components/reference-web-acceptance-tests/master', parameters: [
+                        [$class: 'StringParameterValue', name: 'referenceWebRpmVersion', value: '-1'],
+                        [$class: 'StringParameterValue', name: 'referenceApiRpmVersion', value: rpmVersion]
+                    ]
                 }
             }
 
