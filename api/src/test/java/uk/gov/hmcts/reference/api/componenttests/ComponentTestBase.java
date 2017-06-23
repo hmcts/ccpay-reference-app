@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 public class ComponentTestBase {
 
     @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(9782);
+    public static WireMockRule wireMockRule = new WireMockRule(19782);
 
     @Autowired
     protected UserResolverBackdoor userRequestAuthorizer;
