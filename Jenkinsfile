@@ -4,9 +4,6 @@ import uk.gov.hmcts.Packager
 
 def packager = new Packager(this, 'cc')
 
-def server = Artifactory.server 'artifactory.reform'
-def buildInfo = Artifactory.newBuildInfo()
-
 properties(
     [[$class: 'GithubProjectProperty', displayName: 'Reference App', projectUrlStr: 'https://git.reform.hmcts.net/common-components/reference-app'],
      pipelineTriggers([[$class: 'GitHubPushTrigger']])]
@@ -28,10 +25,6 @@ lock(resource: "reference-app-${env.BRANCH_NAME}", inversePrecedence: true) {
 
             ifMaster {
                 def rpmVersion
-
-                stage('Publish JAR') {
-                    server.publishBuildInfo buildInfo
-                }
 
                 stage("Publish RPM") {
                     rpmVersion = packager.javaRPM('master', 'reference-api', '$(ls api/target/reference-api-*.jar)', 'springboot', 'api/src/main/resources/application.properties')
